@@ -572,11 +572,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
-	Triangle triangle = {
-		{{-1.0f,0.0f,0.0f},
-		{0.0f,1.0f,0.0f},
-		{1.0f,0.0f,0.0f},}
+	Plane plane = {
+		{0.0f,1.0f,1.0f},
+		1.f
 	};
+
 
 	Segment segment = {
 		{-0.40f,0.4f,0.0f},
