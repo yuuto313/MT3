@@ -330,6 +330,15 @@ void DrawLine(const Segment& segment, const Matrix4x4& viewProjectionMatrix, con
 
 }
 
+//三角形を描画
+void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewMatrix, uint32_t color) {
+	Vector3 a = Transform(Transform(triangle.vertices[0], viewProjectionMatrix), viewMatrix);
+	Vector3 b = Transform(Transform(triangle.vertices[1], viewProjectionMatrix), viewMatrix);
+	Vector3 c = Transform(Transform(triangle.vertices[2], viewProjectionMatrix), viewMatrix);
+
+	Novice::DrawTriangle(int(a.x), int(a.y), int(b.x), int(b.y), int(c.x), int(c.y), color, kFillModeWireFrame);
+}
+
 //グリッドを表示する
 void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix) {
 
@@ -523,6 +532,38 @@ bool isCollisionLine(const Segment& segment, const Plane& plane) {
 	return false;
 }
 
+//三角形と線の当たり判定
+bool IsCollisionTriangle(const Triangle& triangle, const Segment& segment) {
+
+	Vector3 v01 = triangle.vertices[1] - triangle.vertices[0];
+	Vector3 v12 = triangle.vertices[2] - triangle.vertices[1];
+	Vector3 v20 = triangle.vertices[2] - triangle.vertices[0];
+
+	Vector3 p = segment.origin - segment.diff;
+
+	Vector3 v1p = p - triangle.vertices[1];
+	Vector3 v2p = p - triangle.vertices[2];
+	Vector3 v0p = p - triangle.vertices[0];
+
+	//各辺を結んだベクトルと、頂点と衝突点pを結んだベクトルのクロス積をとる
+	Vector3 cross01 = Cross(v01, v1p);
+	Vector3 cross12 = Cross(v12, v2p);
+	Vector3 cross20 = Cross(v20, v0p);
+
+
+	// 法線ベクトル
+	Vector3 normal = Cross(v01, v12);
+
+	//すべての小三角形のクロス積と法線が同じ方向を向いていたら衝突
+	if (Dot(cross01, normal) >= 0.0f &&
+		Dot(cross12, normal) >= 0.0f &&
+		Dot(cross20, normal) >= 0.0f) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 const char kWindowTitle[] = "LE2B_04_オザワ_ユウト";
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -531,9 +572,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
-	Plane plane = {
-		{0.0f,1.0f,1.0f},
-		1.f
+	Triangle triangle = {
+		{{-1.0f,0.0f,0.0f},
+		{0.0f,1.0f,0.0f},
+		{1.0f,0.0f,0.0f},}
 	};
 
 	Segment segment = {
@@ -581,9 +623,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewPortMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
 		//当たり判定
-		isCollisionLine(segment,plane);
+		IsCollisionTriangle(triangle, segment);
 
-		if (isCollisionLine(segment, plane)) {
+		if (IsCollisionTriangle(triangle, segment)) {
 			color = RED;
 		} else {
 			color = WHITE;
@@ -592,11 +634,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat3("Plane.normal", &plane.normal.x, 0.01f);
-		plane.normal = Normalize(plane.normal);
-		ImGui::DragFloat("Plane.normal", &plane.distance, 0.01f);
+
 		ImGui::DragFloat3("segment.origin", &segment.origin.x, 0.01f);
 		ImGui::DragFloat3("segment.diff", &segment.diff.x, 0.01f);
+
+		ImGui::DragFloat3("triangle.v[0]", &triangle.vertices[0].x, 0.01f);
+		ImGui::DragFloat3("triangle.v[1]", &triangle.vertices[1].x, 0.01f);
+		ImGui::DragFloat3("triangle.v[2]", &triangle.vertices[2].x, 0.01f);
 		ImGui::End();
 
 
@@ -609,7 +653,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
-		DrawPlane(plane, worldViewProjectionMatrix, viewPortMatrix, WHITE);
+		DrawTriangle(triangle, worldViewProjectionMatrix, viewPortMatrix, WHITE);
 		DrawLine(segment, worldViewProjectionMatrix, viewPortMatrix, color);
 
 		///
