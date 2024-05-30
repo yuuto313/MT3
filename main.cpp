@@ -623,9 +623,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewPortMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
 		//当たり判定
-		IsCollisionTriangle(triangle, segment);
+		isCollisionLine(segment, plane);
 
-		if (IsCollisionTriangle(triangle, segment)) {
+		if (isCollisionLine(segment, plane)) {
 			color = RED;
 		} else {
 			color = WHITE;
@@ -634,13 +634,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
-
+		ImGui::DragFloat3("Plane.normal", &plane.normal.x, 0.01f);
+		plane.normal = Normalize(plane.normal);
+		ImGui::DragFloat("Plane.normal", &plane.distance, 0.01f);
 		ImGui::DragFloat3("segment.origin", &segment.origin.x, 0.01f);
 		ImGui::DragFloat3("segment.diff", &segment.diff.x, 0.01f);
-
-		ImGui::DragFloat3("triangle.v[0]", &triangle.vertices[0].x, 0.01f);
-		ImGui::DragFloat3("triangle.v[1]", &triangle.vertices[1].x, 0.01f);
-		ImGui::DragFloat3("triangle.v[2]", &triangle.vertices[2].x, 0.01f);
 		ImGui::End();
 
 
@@ -653,7 +651,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
-		DrawTriangle(triangle, worldViewProjectionMatrix, viewPortMatrix, WHITE);
+		DrawPlane(plane, worldViewProjectionMatrix, viewPortMatrix, WHITE);
 		DrawLine(segment, worldViewProjectionMatrix, viewPortMatrix, color);
 
 		///
