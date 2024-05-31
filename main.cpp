@@ -668,6 +668,10 @@ bool IsCollisionSphereAndAABB(const AABB& aabb, const Sphere& sphere) {
 	}
 }
 
+//AABBと線分の当たり判定
+bool IsCollisionSegmentAndAABB(const AABB& aabb, const Segment& segment) {
+
+}
 const char kWindowTitle[] = "LE2B_04_オザワ_ユウト";
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -678,18 +682,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	AABB aabb{
 		.min{-0.5f,-0.5f,-0.5f},
-		.max{0.0f,0.0f,0.0f},
+		.max{0.5f,0.5f,0.5f},
 	};
 
-	Sphere sphere{
-		{1.0f,1.0f,1.0f},
-		1.0f
+	Segment segment{
+		.origin{-0.7f,0.3f,0.0f},
+		.diff{2.0f - 0.5f,0.0f},
 	};
 
 	Vector3 rotate = {};
 	Vector3 translate = {};
 
-	int color;
+	int color = WHITE;
 
 	int kWindowWidth = 1280;
 	int kWindowHeight = 720;
@@ -735,20 +739,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		aabb.min.z = (std::min)(aabb.min.z, aabb.max.z);
 		aabb.max.z = (std::max)(aabb.min.z, aabb.max.z);
 
-		IsCollisionSphereAndAABB(aabb, sphere);
+		/*IsCollisionSphereAndAABB(aabb, sphere);
 		if (IsCollisionSphereAndAABB(aabb, sphere)) {
 			color = RED;
 		} else {
 			color = WHITE;
-		}
+		}*/
 
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
 		ImGui::DragFloat3("aabb.min", &aabb.min.x, 0.01f);
 		ImGui::DragFloat3("aabb.max", &aabb.max.x, 0.01f);
-		ImGui::DragFloat3("sphere.center", &sphere.center.x, 0.01f);
-		ImGui::DragFloat("sphere.radius", &sphere.radius, 0.01f);
+		ImGui::DragFloat3("segment.origin", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("segment.diff", &segment.diff.x, 0.01f);
 
 	
 		ImGui::End();
@@ -764,7 +768,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
 		DrawAABB(aabb, worldViewProjectionMatrix, viewPortMatrix, color);
-		DrawSphere(sphere, worldViewProjectionMatrix, viewPortMatrix, WHITE);
+		DrawLine(segment, worldViewProjectionMatrix, viewPortMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで
