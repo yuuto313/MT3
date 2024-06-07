@@ -8,15 +8,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
-
-	AABB aabb{
-		.min{-0.5f,-0.5f,-0.5f},
-		.max{0.5f,0.5f,0.5f},
+	
+	OBB obb{
+		.center{-1.0f,0.0f,0.0f},
+		.orientations = {
+		{1.0f,0.0f,0.0f},
+		{0.0f,1.0f,0.0f},
+		{0.0f,0.0f,1.0f}
+		},
+		.size{0.5f,0.5f,0.5f}
 	};
 
-	Segment segment{
-		.origin{-0.7f,0.3f,0.0f},
-		.diff{2.0f - 0.5f,0.0f},
+	Sphere sphere{
+		.center{0.0f,0.0f,0.0f},
+		.radius{0.5f}
 	};
 
 	Vector3 rotate = {};
