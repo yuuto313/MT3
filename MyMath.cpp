@@ -613,32 +613,80 @@ bool IsCollisionSphereAndAABB(const AABB& aabb, const Sphere& sphere) {
 }
 
 //AABBと線分の当たり判定
-bool IsCollisionSegmentAndAABB(const AABB& aabb, const Segment& segment) {
-	float tXmin = (aabb.min.x - segment.origin.x) / segment.diff.x;
-	float tXmax = (aabb.max.x - segment.origin.x) / segment.diff.x;
+bool IsCollisionSegmentAndAABB(const AABB& aabb, const Segment& segment)
+{
+	Vector3 nX = { 1,0,0 };
+	Vector3 nY = { 0,1,0 };
+	Vector3 nZ = { 0,0,1 };
 
-	float tYmin = (aabb.min.y - segment.origin.y) / segment.diff.y;
-	float tYmax = (aabb.max.y - segment.origin.y) / segment.diff.y;
+	float dotX = Dot(nX, segment.diff);
+	float dotY = Dot(nY, segment.diff);
+	float dotZ = Dot(nZ, segment.diff);
 
-	float tZmin = (aabb.min.z - segment.origin.z) / segment.diff.z;
-	float tZmax = (aabb.max.z - segment.origin.z) / segment.diff.z;
+	float txMin = (aabb.min.x - segment.origin.x) / dotX;
+	float txMax = (aabb.max.x - segment.origin.x) / dotX;
 
-	float tNearX = min(tXmin, tXmax);
-	float tFarX = max(tXmin, tXmax);
+	float tyMin = (aabb.min.y - segment.origin.y) / dotY;
+	float tyMax = (aabb.max.y - segment.origin.y) / dotY;
 
-	float tNearY = min(tYmin, tYmax);
-	float tFarY = max(tYmin, tYmax);
+	float tzMin = (aabb.min.z - segment.origin.z) / dotZ;
+	float tzMax = (aabb.max.z - segment.origin.z) / dotZ;
 
-	float tNearZ = min(tZmin, tZmax);
-	float tFarZ = max(tZmin, tZmax);
+
+	float tNearX = min(txMin, txMax);
+	float tFarX = max(txMin, txMax);
+
+	float tNearY = min(tyMin, tyMax);
+	float tFarY = max(tyMin, tyMax);
+
+	float tNearZ = min(tzMin, tzMax);
+	float tFarZ = max(tzMin, tzMax);
+
+
 
 	//AABBとの衝突点（貫通点）のtが小さい方
 	float tmin = max(max(tNearX, tNearY), tNearZ);
+
 	//AABBとの衝突点（貫通点）のtが大きい方
 	float tmax = min(min(tFarX, tFarY), tFarZ);
-	if (tmin <= tmax && tmax >= 0.0f && tmin <= 1.0f) {
-		return true;
-	} else {
+
+
+
+	if (txMax > INFINITY or txMin < -INFINITY or
+		tyMax > INFINITY or tyMin < -INFINITY or
+		tzMax > INFINITY or tzMin < -INFINITY)
+	{
 		return false;
 	}
+
+	if (std::isnan(txMax) or std::isnan(txMin) or
+		std::isnan(tyMax) or std::isnan(tyMin) or
+		std::isnan(tzMax) or std::isnan(tzMin))
+	{
+		return false;
+	}
+
+	//衝突判定
+	if (tmin <= tmax)
+	{
+		if ((tmax <= 1 && tmax >= 0) or (tmin <= 1 && tmin >= 0))
+		{
+			return true;
+		} 
+		else if ((tFarX >= 1 && tNearX <= 0) &&
+			(tFarY >= 1 && tNearY <= 0) &&
+			(tFarZ >= 1 && tNearZ <= 0))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+
+	} else
+	{
+		return false;
+	}
+
 }
