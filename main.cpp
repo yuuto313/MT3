@@ -535,24 +535,38 @@ bool isCollisionLine(const Segment& segment, const Plane& plane) {
 //三角形と線の当たり判定
 bool IsCollisionTriangle(const Triangle& triangle, const Segment& segment) {
 
-	Vector3 v01 = triangle.vertices[1] - triangle.vertices[0];
-	Vector3 v12 = triangle.vertices[2] - triangle.vertices[1];
-	Vector3 v20 = triangle.vertices[2] - triangle.vertices[0];
+	Vector3 v01 = Subtract(triangle.vertices[1],triangle.vertices[0]);
+	Vector3 v12 = Subtract(triangle.vertices[2],triangle.vertices[1]);
+	Vector3 v20 = Subtract(triangle.vertices[0],triangle.vertices[2]);
 
-	Vector3 p = segment.origin - segment.diff;
+	//法線
+	Vector3 normal = Normalize(Cross(v01, v12));
 
-	Vector3 v1p = p - triangle.vertices[1];
-	Vector3 v2p = p - triangle.vertices[2];
-	Vector3 v0p = p - triangle.vertices[0];
+	float d = Dot(triangle.vertices[0], normal);
+
+	//法線と線との内積を求める
+	float dot = Dot(normal, segment.diff);
+
+	//tを求める
+	float t = (d - Dot(segment.origin, normal)) / dot;
+	
+	// 前回とは逆
+	if (!(t <= 1 && t >= 0))
+	{
+		return false;
+	}
+
+	//pを求める
+	Vector3 p = Add(segment.origin, Multiply(t, segment.diff));
+
+	Vector3 v1p = Subtract(p,triangle.vertices[1]);
+	Vector3 v2p = Subtract(p,triangle.vertices[2]);
+	Vector3 v0p = Subtract(p,triangle.vertices[0]);
 
 	//各辺を結んだベクトルと、頂点と衝突点pを結んだベクトルのクロス積をとる
 	Vector3 cross01 = Cross(v01, v1p);
 	Vector3 cross12 = Cross(v12, v2p);
 	Vector3 cross20 = Cross(v20, v0p);
-
-
-	// 法線ベクトル
-	Vector3 normal = Cross(v01, v12);
 
 	//すべての小三角形のクロス積と法線が同じ方向を向いていたら衝突
 	if (Dot(cross01, normal) >= 0.0f &&
@@ -563,6 +577,8 @@ bool IsCollisionTriangle(const Triangle& triangle, const Segment& segment) {
 		return false;
 	}
 }
+
+
 
 const char kWindowTitle[] = "LE2B_04_オザワ_ユウト";
 
