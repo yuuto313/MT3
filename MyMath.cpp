@@ -623,24 +623,25 @@ bool IsCollisionSegmentAndAABB(const AABB& aabb, const Segment& segment)
 	float dotY = Dot(nY, segment.diff);
 	float dotZ = Dot(nZ, segment.diff);
 
-	float txMin = (aabb.min.x - segment.origin.x) / dotX;
-	float txMax = (aabb.max.x - segment.origin.x) / dotX;
+	//
+	float tXmin = (aabb.min.x - segment.origin.x) / dotX;
+	float tXmax = (aabb.max.x - segment.origin.x) / dotX;
 
-	float tyMin = (aabb.min.y - segment.origin.y) / dotY;
-	float tyMax = (aabb.max.y - segment.origin.y) / dotY;
+	float tYmin = (aabb.min.y - segment.origin.y) / dotY;
+	float tYmax = (aabb.max.y - segment.origin.y) / dotY;
 
-	float tzMin = (aabb.min.z - segment.origin.z) / dotZ;
-	float tzMax = (aabb.max.z - segment.origin.z) / dotZ;
+	float tZmin = (aabb.min.z - segment.origin.z) / dotZ;
+	float tZmax = (aabb.max.z - segment.origin.z) / dotZ;
 
 
-	float tNearX = min(txMin, txMax);
-	float tFarX = max(txMin, txMax);
+	float tNearX = min(tXmin, tXmax);
+	float tFarX = max(tXmin, tXmax);
 
-	float tNearY = min(tyMin, tyMax);
-	float tFarY = max(tyMin, tyMax);
+	float tNearY = min(tYmin, tYmax);
+	float tFarY = max(tYmin, tYmax);
 
-	float tNearZ = min(tzMin, tzMax);
-	float tFarZ = max(tzMin, tzMax);
+	float tNearZ = min(tZmin, tZmax);
+	float tFarZ = max(tZmin, tZmax);
 
 
 
@@ -651,17 +652,17 @@ bool IsCollisionSegmentAndAABB(const AABB& aabb, const Segment& segment)
 	float tmax = min(min(tFarX, tFarY), tFarZ);
 
 
-
-	if (txMax > INFINITY or txMin < -INFINITY or
-		tyMax > INFINITY or tyMin < -INFINITY or
-		tzMax > INFINITY or tzMin < -INFINITY)
+	if (tXmax > INFINITY or tXmin < -INFINITY or
+		tYmax > INFINITY or tYmin < -INFINITY or
+		tZmax > INFINITY or tZmin < -INFINITY)
 	{
 		return false;
 	}
 
-	if (std::isnan(txMax) or std::isnan(txMin) or
-		std::isnan(tyMax) or std::isnan(tyMin) or
-		std::isnan(tzMax) or std::isnan(tzMin))
+	//NaNの処理
+	if (std::isnan(tZmax) or std::isnan(tXmin) or
+		std::isnan(tYmax) or std::isnan(tYmin) or
+		std::isnan(tZmax) or std::isnan(tZmin))
 	{
 		return false;
 	}
