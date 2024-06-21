@@ -1,5 +1,5 @@
 ﻿#include "MyMath.h"
-
+#include <array>
 
 //クロス積（ベクトル積）
 Vector3 Cross(const Vector3& v1, const Vector3& v2) {
@@ -460,6 +460,24 @@ void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Mat
 
 }
 
+//void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
+//{
+//	// OBBの8頂点を計算
+//	std::array<Vector3, 8> vertices;
+//	Vector3 axis[3] = { obb.orientations[0] * obb.size.x, obb.orientations[1] * obb.size.y, obb.orientations[2] * obb.size.z };
+//
+//	vertices[0] = obb.center - axis[0] - axis[1] - axis[2];
+//	vertices[1] = obb.center + axis[0] - axis[1] - axis[2];
+//	vertices[2] = obb.center - axis[0] + axis[1] - axis[2];
+//	vertices[3] = obb.center + axis[0] + axis[1] - axis[2];
+//	vertices[4] = obb.center - axis[0] - axis[1] + axis[2];
+//	vertices[5] = obb.center + axis[0] - axis[1] + axis[2];
+//	vertices[6] = obb.center - axis[0] + axis[1] + axis[2];
+//	vertices[7] = obb.center + axis[0] + axis[1] + axis[2];
+//
+//	
+//}
+
 //正射影ベクトル（ベクトル射影）
 Vector3 Project(const Vector3& v1, const Vector3& v2) {
 	//v1とv2の内積
@@ -641,4 +659,41 @@ bool IsCollisionSegmentAndAABB(const AABB& aabb, const Segment& segment) {
 	} else {
 		return false;
 	}
+}
+
+bool IsCollisionSphereAndOBB(const Sphere& sphere, const OBB& obb)
+{
+	//OBBのワールド行列を作る
+	Matrix4x4 obbRotateMatrix = {};
+	obbRotateMatrix.m[0][0] = obb.orientations[0].x;
+	obbRotateMatrix.m[1][0] = obb.orientations[1].x;
+	obbRotateMatrix.m[2][0] = obb.orientations[2].x;
+
+	
+	Matrix4x4 obbWorldMatrix = obbRotateMatrix;
+	obbWorldMatrix.m[3][0] = obb.center.x;
+	obbWorldMatrix.m[3][1] = obb.center.y;
+	obbWorldMatrix.m[3][2] = obb.center.z;
+
+	//OBBのワールド行列の逆行列を求める
+	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+
+	//中心点を逆行列でOBBのローカル空間上の点にする
+	Vector3 centerInOBBLocalSpace = Transform(sphere.center, obbWorldMatrixInverse);
+
+	//OBBからABBを作る
+	AABB aabbLocal;
+	aabbLocal.min = obb.size;
+	aabbLocal.min *= -1;
+	aabbLocal.max = obb.size;
+
+	Sphere sphereOBBLocal{ centerInOBBLocalSpace,sphere.radius };
+
+	//AABBと球の衝突判定をおこなう
+	if (IsCollisionSphereAndAABB(aabbLocal, sphereOBBLocal)) {
+		return true;
+	} else {
+		return false;
+	}
+	
 }

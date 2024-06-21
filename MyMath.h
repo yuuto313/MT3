@@ -145,6 +145,9 @@ void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, con
 //直方体を描画
 void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
+//有効境界箱を描画
+void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
 //正射影ベクトル（ベクトル射影）
 Vector3 Project(const Vector3& v1, const Vector3& v2);
 
@@ -171,3 +174,5 @@ bool IsCollisionSphereAndAABB(const AABB& aabb, const Sphere& sphere);
 //AABBと線分の当たり判定
 bool IsCollisionSegmentAndAABB(const AABB& aabb, const Segment& segment);
 
+//球とOBBの当たり判定
+bool IsCollisionSphereAndOBB(const Sphere& sphere, const OBB& obb);
