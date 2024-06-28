@@ -9,6 +9,8 @@
 #include <Vector2.h>
 #include <cmath>
 #include <algorithm>
+
+#define Division_Number 32
 #pragma once
 
 
@@ -84,6 +86,12 @@ Vector3 Normalize(const Vector3& v);
 //積
 Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2);
 
+//線形保管
+Vector3 Leap(const Vector3& v1, const Vector3& v2, float t);
+
+//ベジェ曲線
+Vector3 Bezier(const Vector3& p0, const Vector3& p1, const Vector3& p2, float t);
+
 //逆行列
 Matrix4x4 Inverse(const Matrix4x4& m);
 
@@ -148,10 +156,15 @@ void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Mat
 //有効境界箱を描画
 void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
+//(2次)ベジェ曲線を描画
+void DrawBezier(const Vector3& contrloPoint0, const Vector3& controlPoint1, const Vector3& controlPoint2, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
 //正射影ベクトル（ベクトル射影）
 Vector3 Project(const Vector3& v1, const Vector3& v2);
 
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment);
+
+
 
 //球と球の当たり判定
 bool IsCollisionSphere(const Sphere& s1, const Sphere& s2);

@@ -9,19 +9,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 	
-	OBB obb{
-		.center{-1.0f,0.0f,0.0f},
-		.orientations = {
-		{1.0f,0.0f,0.0f},
-		{0.0f,1.0f,0.0f},
-		{0.0f,0.0f,1.0f}
-		},
-		.size{0.5f,0.5f,0.5f}
+	Vector3 controlPoint[3] = {
+		{-0.8f,0.58f,1.0f},
+		{1.76f,1.0f,-0.3f},
+		{0.94f,-0.7f,2.3f}
 	};
 
-	Sphere sphere{
-		.center{0.0f,0.0f,0.0f},
-		.radius{0.5f}
+	Sphere sphere[3] = {
+		{controlPoint[0],0.01f},
+		{controlPoint[1],0.01f},
+		{controlPoint[2],0.01f}
 	};
 
 	Vector3 rotate = {};
@@ -31,7 +28,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Matrix4x4 rotateOBBMatrix = {};
 	Matrix4x4 obbWorldMatrix = {};
 
-	int color = WHITE;
+	int color = BLUE;
 
 	int kWindowWidth = 1280;
 	int kWindowHeight = 720;
@@ -57,6 +54,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		sphere[0].center = controlPoint[0];
+		sphere[1].center = controlPoint[1];
+		sphere[2].center = controlPoint[2];
+
 		//各種行列の計算
 		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
 		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
@@ -70,31 +71,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//OBBの軸を作る
 		rotateMatrix = Multiply(MakeRotateXMatrix(rotate.x), Multiply(MakeRotateYMatrix(rotate.y), MakeRotateZMatrix(rotate.z))); 
 
-		//回転行列から軸を抽出
-		obb.orientations[0].x = rotateMatrix.m[0][0];
-		obb.orientations[0].y = rotateMatrix.m[0][1];
-		obb.orientations[0].z = rotateMatrix.m[0][2];
-		
-		obb.orientations[1].x = rotateMatrix.m[1][0];
-		obb.orientations[1].y = rotateMatrix.m[1][1];
-		obb.orientations[1].z = rotateMatrix.m[1][2];
-		
-		obb.orientations[2].x = rotateMatrix.m[2][0];
-		obb.orientations[2].y = rotateMatrix.m[2][1];
-		obb.orientations[2].z = rotateMatrix.m[2][2];
-		
-
-		IsCollisionSphereAndOBB(sphere, obb);
-		if (IsCollisionSphereAndOBB(sphere, obb)) {
-			color = RED;
-		} else {
-			color = WHITE;
-		}
 
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
 		
+		ImGui::SliderFloat3("controlPoint[0]", &controlPoint[0].x, -10.f, 10.f);
+		ImGui::SliderFloat3("controlPoint[1]", &controlPoint[1].x, -10.f, 10.f);
+		ImGui::SliderFloat3("controlPoint[2]", &controlPoint[2].x, -10.f, 10.f);
 
 	
 		ImGui::End();
@@ -109,7 +93,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
-		DrawSphere(sphere, worldViewProjectionMatrix, viewPortMatrix, WHITE);
+		DrawBezier(controlPoint[0], controlPoint[1], controlPoint[2], worldViewProjectionMatrix, viewPortMatrix, color);
+		DrawSphere(sphere[0], worldViewProjectionMatrix, viewPortMatrix,BLACK);
+		DrawSphere(sphere[1], worldViewProjectionMatrix, viewPortMatrix,BLACK);
+		DrawSphere(sphere[2], worldViewProjectionMatrix, viewPortMatrix,BLACK);
 
 
 		///

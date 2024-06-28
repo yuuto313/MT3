@@ -60,6 +60,24 @@ Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 	return result;
 }
 
+//線形補間
+Vector3 Leap(const Vector3& v1, const Vector3& v2, float t)
+{
+	return v1 * t + v2 * (1.0f - t);
+}
+
+//ベジェ曲線
+Vector3 Bezier(const Vector3& p0, const Vector3& p1, const Vector3& p2, float t)
+{
+	Vector3 p0p1 = Leap(p0, p1, t);
+	Vector3 p1p2 = Leap(p1, p2, t);
+	Vector3 p = Leap(p0p1, p1p2, t);
+
+	return p;
+}
+
+
+
 //逆行列
 Matrix4x4 Inverse(const Matrix4x4& m) {
 	Matrix4x4 result{};
@@ -477,6 +495,25 @@ void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Mat
 //
 //	
 //}
+
+void DrawBezier(const Vector3& contrloPoint0, const Vector3& controlPoint1, const Vector3& controlPoint2, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
+{
+
+	for (int index = 0; index < Division_Number; index++) {
+		float t0 = index / float(Division_Number);
+		float t1 = (index + 1) / float(Division_Number);
+
+
+		Vector3 bezier1 = Bezier(contrloPoint0, controlPoint1, controlPoint2, t0);
+		Vector3 bezier2 = Bezier(contrloPoint0, controlPoint1, controlPoint2, t1);
+
+
+		bezier1 = Transform(Transform(bezier1, viewProjectionMatrix), viewportMatrix);
+		bezier2 = Transform(Transform(bezier2, viewProjectionMatrix), viewportMatrix);
+
+		Novice::DrawLine((int)bezier1.x, (int)bezier1.y, (int)bezier2.x, (int)bezier2.y, color);
+	}
+}
 
 //正射影ベクトル（ベクトル射影）
 Vector3 Project(const Vector3& v1, const Vector3& v2) {
