@@ -6,19 +6,35 @@ const char kWindowTitle[] = "LE2B_04_オザワ_ユウト";
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
+	//肘と手のwordMatrixを求める
+	//資料6~8辺り
+
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 	
-	Vector3 controlPoint[3] = {
-		{-0.8f,0.58f,1.0f},
-		{1.76f,1.0f,-0.3f},
-		{0.94f,-0.7f,2.3f}
+	//各配列の値は[0]:肩,[1]:肘,[2]:手を表す
+
+	Vector3 translates[3] = {
+		{0.2f,1.0f,0.0f},
+		{0.4f,0.0f,0.0f},
+		{0.3f,0.0f,0.0f}
+	};
+	Vector3 rotates[3] = {
+		{0.0f,0.0f,-6.8f},
+		{0.0f,0.0f,-1.4f},
+		{0.0f,0.0f,0.0f}
+	};
+	Vector3 scales[3] = {
+		{1.0f,1.0f,1.0f},
+		{1.0f,1.0f,1.0f},
+		{1.0f,1.0f,1.0f}
 	};
 
+
 	Sphere sphere[3] = {
-		{controlPoint[0],0.01f},
-		{controlPoint[1],0.01f},
-		{controlPoint[2],0.01f}
+		{translates[0],0.05f},
+		{translates[1],0.05f},
+		{translates[2],0.05f}
 	};
 
 	Vector3 rotate = {};
@@ -28,7 +44,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Matrix4x4 rotateOBBMatrix = {};
 	Matrix4x4 obbWorldMatrix = {};
 
-	int color = BLUE;
+	//int color = BLUE;
 
 	int kWindowWidth = 1280;
 	int kWindowHeight = 720;
@@ -54,9 +70,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		sphere[0].center = controlPoint[0];
-		sphere[1].center = controlPoint[1];
-		sphere[2].center = controlPoint[2];
+		sphere[0].center = translates[0];
+		sphere[1].center = translates[1];
+		sphere[2].center = translates[2];
 
 		//各種行列の計算
 		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
@@ -75,10 +91,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("CameraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
-		
-		ImGui::SliderFloat3("controlPoint[0]", &controlPoint[0].x, -10.f, 10.f);
-		ImGui::SliderFloat3("controlPoint[1]", &controlPoint[1].x, -10.f, 10.f);
-		ImGui::SliderFloat3("controlPoint[2]", &controlPoint[2].x, -10.f, 10.f);
+
+		ImGui::SliderFloat3("translates[0]", &translates[0].x, -3.f, 3.f);
+		ImGui::SliderFloat3("translates[1]", &translates[1].x, -3.f, 3.f);
+		ImGui::SliderFloat3("translates[2]", &translates[2].x, -3.f, 3.f);
+		ImGui::SliderFloat3("scales[0]", &scales[0].x, -3.f, 3.f);
+		ImGui::SliderFloat3("scales[1]", &scales[1].x, -3.f, 3.f);
+		ImGui::SliderFloat3("scales[2]", &scales[2].x, -3.f, 3.f);
+		ImGui::SliderFloat3("rotates[0]", &rotates[0].x, -3.f, 3.f);
+		ImGui::SliderFloat3("rotates[1]", &rotates[1].x, -3.f, 3.f);
+		ImGui::SliderFloat3("rotates[2]", &rotates[2].x, -3.f, 3.f);
 
 	
 		ImGui::End();
@@ -93,10 +115,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
-		DrawBezier(controlPoint[0], controlPoint[1], controlPoint[2], worldViewProjectionMatrix, viewPortMatrix, color);
-		DrawSphere(sphere[0], worldViewProjectionMatrix, viewPortMatrix,BLACK);
-		DrawSphere(sphere[1], worldViewProjectionMatrix, viewPortMatrix,BLACK);
-		DrawSphere(sphere[2], worldViewProjectionMatrix, viewPortMatrix,BLACK);
+		DrawSphere(sphere[0], worldViewProjectionMatrix, viewPortMatrix,RED);
+		DrawSphere(sphere[1], worldViewProjectionMatrix, viewPortMatrix,GREEN);
+		DrawSphere(sphere[2], worldViewProjectionMatrix, viewPortMatrix,BLUE);
+		//肩から肘への線
+		DrawLine(translates[0], translates[1], worldViewProjectionMatrix, viewPortMatrix, WHITE);
+		//肘から手への線
+		DrawLine(translates[1], translates[2], worldViewProjectionMatrix, viewPortMatrix, WHITE);
+		
 
 
 		///

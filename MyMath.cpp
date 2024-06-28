@@ -299,6 +299,12 @@ void DrawLine(const Segment& segment, const Matrix4x4& viewProjectionMatrix, con
 
 }
 
+void DrawLine(const Vector3& origin, const Vector3& diff, const Matrix4x4 viewProjectionMatrix, const Matrix4x4 viewMatrix, uint32_t color) {
+	Vector3 newOrigin = Transform(Transform(origin, viewProjectionMatrix), viewMatrix);
+	Vector3 newDiff = Transform(Transform(diff, viewProjectionMatrix), viewMatrix);
+	Novice::DrawLine(int(newOrigin.x), int(newOrigin.y), int(newDiff.x), int(newDiff.y), color);
+}
+
 //三角形を描画
 void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewMatrix, uint32_t color) {
 	Vector3 a = Transform(Transform(triangle.vertices[0], viewProjectionMatrix), viewMatrix);

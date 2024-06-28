@@ -141,6 +141,8 @@ void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const 
 //線を描画
 void DrawLine(const Segment& segment, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewMatrix, uint32_t color);
 
+void DrawLine(const Vector3& origin, const Vector3& diff, const Matrix4x4 viewProjectionMatrix, const Matrix4x4 viewMatrix, uint32_t color);
+
 //三角形を描画
 void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewMatrix, uint32_t color);
 
