@@ -69,10 +69,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
+		
+		//肩のworldMatrix
+		Matrix4x4 shoulderWorldMatrix = MakeAffineMatrix(scales[0], rotates[0], translates[0]);
+		//肘のworldMatrix
+		Matrix4x4 elbowLocalMatrix = MakeAffineMatrix(scales[1], rotates[1], translates[1]);
+		Matrix4x4 elbowWorldMatrix = Multiply(elbowLocalMatrix, shoulderWorldMatrix);
+		//手のworldMatrix
+		Matrix4x4 handLocalMatrix = MakeAffineMatrix(scales[2], rotates[2], translates[2]);
+		Matrix4x4 handWorldMatrix = Multiply(handLocalMatrix, elbowWorldMatrix);
 
-		sphere[0].center = translates[0];
-		sphere[1].center = translates[1];
-		sphere[2].center = translates[2];
+		sphere[0].center = Transform({ 0.0f, 0.0f, 0.0f }, shoulderWorldMatrix);
+		sphere[1].center = Transform({ 0.0f, 0.0f, 0.0f }, elbowWorldMatrix);
+		sphere[2].center = Transform({ 0.0f, 0.0f, 0.0f }, handWorldMatrix);
 
 		//各種行列の計算
 		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
@@ -119,9 +128,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DrawSphere(sphere[1], worldViewProjectionMatrix, viewPortMatrix,GREEN);
 		DrawSphere(sphere[2], worldViewProjectionMatrix, viewPortMatrix,BLUE);
 		//肩から肘への線
-		DrawLine(translates[0], translates[1], worldViewProjectionMatrix, viewPortMatrix, WHITE);
+		DrawLine(sphere[0].center, sphere[1].center, worldViewProjectionMatrix, viewPortMatrix, WHITE);
 		//肘から手への線
-		DrawLine(translates[1], translates[2], worldViewProjectionMatrix, viewPortMatrix, WHITE);
+		DrawLine(sphere[1].center, sphere[2].center, worldViewProjectionMatrix, viewPortMatrix, WHITE);
 		
 
 
