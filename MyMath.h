@@ -67,6 +67,26 @@ struct OBB
 	Vector3 size;//座標軸方向の長さの半分。中心から面までの距離
 };
 
+//ばね
+struct Spring {
+	//アンカー。固定された端の位置
+	Vector3 anchor;
+	//自然長
+	float naturalLength;
+	//剛性。バネ定数k
+	float stiffness;
+};
+
+//球体
+struct Ball {
+	Vector3 position;
+	Vector3 velocity;
+	Vector3 acceleration;
+	float mass;
+	float radius;
+	unsigned int color;
+};
+
 //クロス積（ベクトル積）
 Vector3 Cross(const Vector3& v1, const Vector3& v2);
 
@@ -191,3 +211,12 @@ bool IsCollisionSegmentAndAABB(const AABB& aabb, const Segment& segment);
 
 //球とOBBの当たり判定
 bool IsCollisionSphereAndOBB(const Sphere& sphere, const OBB& obb);
+
+//二項演算子
+Vector3 operator+(const Vector3& v1, const Vector3& v2);
+Vector3 operator-(const Vector3& v1, const Vector3& v2);
+
+Vector3 operator+(float s, const Vector3& v);
+Vector3 operator*(float s, const Vector3& v);
+Vector3 operator*(const Vector3& v, float s);
+Vector3 operator/(const Vector3& v, float s);
