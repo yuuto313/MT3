@@ -75,6 +75,8 @@ struct Spring {
 	float naturalLength;
 	//剛性。バネ定数k
 	float stiffness;
+	//減衰係数
+	float dampingCoefficient;
 };
 
 //球体

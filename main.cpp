@@ -15,6 +15,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	spring.anchor = { 0.0f,0.0f,0.0f };
 	spring.naturalLength = 1.0f;
 	spring.stiffness = 100.0f;
+	spring.dampingCoefficient = 2.0f;
 
 	Ball ball{};
 	ball.position = { 1.2f,0.0f,0.0f };
@@ -22,7 +23,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ball.radius = 0.05f;
 	ball.color = BLUE;
 
-	//float deltaTime = 1.0f / 60.f;
+	float deltaTime;
 
 	Vector3 rotate = {};
 	Vector3 translate = {};
@@ -67,7 +68,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//ViewportMatrixを作る
 		Matrix4x4 viewPortMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
-		float deltaTime = 1.0f / 60.f;
+		deltaTime = 1.0f / 60.f;
 
 		Vector3 diff = ball.position - spring.anchor;
 		float length = Length(diff);
@@ -75,8 +76,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Vector3 direction = Normalize(diff);
 			Vector3 restPosition = spring.anchor + direction * spring.naturalLength;
 			Vector3 displacement = length * (ball.position - restPosition);
-			Vector3 restoringForce = -spring.stiffness + displacement;
-			Vector3 force = restoringForce;
+			Vector3 restoringForce = -spring.stiffness * displacement;
+			//減衰抵抗を計算する
+			Vector3 dampingForce = -spring.dampingCoefficient * ball.velocity;
+			//減衰抵抗も加味して、物体にかかる力を計算する
+			Vector3 force = restoringForce + dampingForce;
 			ball.acceleration = force / ball.mass;
 		}
 
@@ -84,6 +88,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//それが、1/60秒間(deltaTime)適用されたと考える
 		ball.velocity += ball.acceleration * deltaTime;
 		ball.position += ball.velocity * deltaTime;
+
+
 
 		ImGui::Begin("Window");
 		ImGui::End();
