@@ -12,7 +12,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
 	Ball ball{};
-	ball.position = { 1.2f,0.0f,0.0f };
+	ball.position = { 0.8f,0.0f,0.0f };
 	ball.mass = 2.0f;
 	ball.radius = 0.05f;
 	ball.color = BLUE;
@@ -71,11 +71,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			angle += angularVelocity * deltaTime;
 
 			//ボールの位置を更新
-			ball.position.x = std::cos(angle) + radius;
-			ball.position.y = std::sin(angle) + radius;
+			ball.position.x = centor.x + std::cos(angle) * radius;
+			ball.position.y = centor.y + std::sin(angle) * radius;
 			ball.position.z = centor.z;
 
+			/*ball.velocity = { -radius * angularVelocity * std::cos(angle),radius * angularVelocity * std::sin(angle),0.0f };
+
+			float acceleration = angularVelocity * angularVelocity * radius;
+			ball.acceleration = { -acceleration * std::cos(angle),-acceleration * std::sin(angle),0.0f };*/
 		}
+
+		//加速度も速度もどちらも秒を基準とした値である
+		//それが、1/60秒間(deltaTime)適用されたと考える
+		ball.velocity += ball.acceleration * deltaTime;
+		ball.position += ball.velocity * deltaTime;
 
 	
 		ImGui::Begin("Window");
