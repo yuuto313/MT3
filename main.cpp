@@ -17,7 +17,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ball.radius = 0.05f;
 	ball.color = BLUE;
 
-	Vector3 centor = { 0.f,00.f,0.f };
+	Vector3 centor = { 0.f,0.f,0.f };
 	bool start = false;
 	float angle = 0.0f;
 	float angularVelocity = 3.14f;
@@ -66,16 +66,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 		//ViewportMatrixを作る
 		Matrix4x4 viewPortMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+		if (start) {
+			//角度を更新
+			angle += angularVelocity * deltaTime;
 
-		//角度を更新
-		angle += angularVelocity * deltaTime;
+			//ボールの位置を更新
+			ball.position.x = std::cos(angle) + radius;
+			ball.position.y = std::sin(angle) + radius;
+			ball.position.z = centor.z;
 
-		//ボールの位置を更新
-		ball.position.x = centor.x * std::cos(angle) + radius;
-		ball.position.y = centor.y * std::sin(angle) + radius;
-		ball.position.z = centor.z;
-
-
+		}
 
 	
 		ImGui::Begin("Window");
