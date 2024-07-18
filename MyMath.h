@@ -89,6 +89,20 @@ struct Ball {
 	unsigned int color;
 };
 
+///振り子
+struct Pendulum {
+	//アンカーポイント
+	Vector3	anchor;
+	//長さ
+	float length;
+	//現在の角度
+	float angle;
+	//角速度ω
+	float angulearVelocity;
+	//角加速度
+	float angularAcceleration;
+};
+
 //クロス積（ベクトル積）
 Vector3 Cross(const Vector3& v1, const Vector3& v2);
 

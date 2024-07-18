@@ -17,12 +17,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ball.radius = 0.05f;
 	ball.color = BLUE;
 
-	Vector3 centor = { 0.f,0.f,0.f };
+	Pendulum pendulum{};
+	pendulum.anchor = { 0.0f,1.0f,0.0f };
+	pendulum.length = 0.8f;
+	pendulum.angle = 0.7f;
+	pendulum.angulearVelocity = 0.0f;
+	pendulum.angularAcceleration = 0.0f;
+
 	bool start = false;
-	float angle = 0.0f;
-	float angularVelocity = 3.14f;
 	float deltaTime = 1.0f / 60.f;
-	float radius = 0.8f;
+
 	
 	Vector3 rotate = {};
 	Vector3 translate = {};
@@ -67,18 +71,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//ViewportMatrixを作る
 		Matrix4x4 viewPortMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 		if (start) {
-			//角度を更新
-			angle += angularVelocity * deltaTime;
+			//振り子の角度を計算する
+			pendulum.angularAcceleration = -(9.8f / pendulum.length) * std::sin(pendulum.angle) ;
+			pendulum.angulearVelocity += pendulum.angularAcceleration * deltaTime;
+			pendulum.angle += pendulum.angulearVelocity * deltaTime;
 
-			//ボールの位置を更新
-			ball.position.x = centor.x + std::cos(angle) * radius;
-			ball.position.y = centor.y + std::sin(angle) * radius;
-			ball.position.z = centor.z;
-
-			/*ball.velocity = { -radius * angularVelocity * std::cos(angle),radius * angularVelocity * std::sin(angle),0.0f };
-
-			float acceleration = angularVelocity * angularVelocity * radius;
-			ball.acceleration = { -acceleration * std::cos(angle),-acceleration * std::sin(angle),0.0f };*/
+			ball.position.x = pendulum.anchor.x + std::sin(pendulum.angle) * pendulum.length;
+			ball.position.y = pendulum.anchor.y - std::cos(pendulum.angle) * pendulum.length;
+			ball.position.z = pendulum.anchor.z;
 		}
 
 		//加速度も速度もどちらも秒を基準とした値である
@@ -102,6 +102,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
+		DrawLine(pendulum.anchor, ball.position, worldViewProjectionMatrix, viewPortMatrix,WHITE);
 		DrawSphere(ball, worldViewProjectionMatrix, viewPortMatrix,ball.color);
 
 
