@@ -17,12 +17,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ball.radius = 0.05f;
 	ball.color = BLUE;
 
-	Pendulum pendulum{};
-	pendulum.anchor = { 0.0f,1.0f,0.0f };
-	pendulum.length = 0.8f;
-	pendulum.angle = 0.7f;
-	pendulum.angulearVelocity = 0.0f;
-	pendulum.angularAcceleration = 0.0f;
+	ConicalPendulum conicalPendullum{};
+	conicalPendullum.anchor = { 0.0f,1.0f,0.0f };
+	conicalPendullum.length = 0.8f;
+	conicalPendullum.halfApexAngle = 0.7f;
+	conicalPendullum.angle = 0.0f;
+	conicalPendullum.angularVelocity = 0.0f;
 
 	bool start = false;
 	float deltaTime = 1.0f / 60.f;
@@ -71,14 +71,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//ViewportMatrixを作る
 		Matrix4x4 viewPortMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 		if (start) {
-			//振り子の角度を計算する
-			pendulum.angularAcceleration = -(9.8f / pendulum.length) * std::sin(pendulum.angle) ;
-			pendulum.angulearVelocity += pendulum.angularAcceleration * deltaTime;
-			pendulum.angle += pendulum.angulearVelocity * deltaTime;
+			//円錐振り子の角速度を計算する
+			conicalPendullum.angularVelocity = std::sqrt(9.8f / (conicalPendullum.length * std::cos(conicalPendullum.halfApexAngle)));
+			conicalPendullum.angle += conicalPendullum.angularVelocity * deltaTime;
 
-			ball.position.x = pendulum.anchor.x + std::sin(pendulum.angle) * pendulum.length;
-			ball.position.y = pendulum.anchor.y - std::cos(pendulum.angle) * pendulum.length;
-			ball.position.z = pendulum.anchor.z;
+			float radius = std::sin(conicalPendullum.halfApexAngle) * conicalPendullum.length;
+			float height = std::cos(conicalPendullum.halfApexAngle) * conicalPendullum.length;
+
+			ball.position.x = conicalPendullum.anchor.x + std::cos(conicalPendullum.angle) * radius;
+			ball.position.y = conicalPendullum.anchor.y - height;
+			ball.position.z = conicalPendullum.anchor.z - std::sin(conicalPendullum.angle) * radius;
 		}
 
 		//加速度も速度もどちらも秒を基準とした値である
@@ -102,7 +104,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
-		DrawLine(pendulum.anchor, ball.position, worldViewProjectionMatrix, viewPortMatrix,WHITE);
+		DrawLine(conicalPendullum.anchor, ball.position, worldViewProjectionMatrix, viewPortMatrix,WHITE);
 		DrawSphere(ball, worldViewProjectionMatrix, viewPortMatrix,ball.color);
 
 
