@@ -613,6 +613,17 @@ Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
 	return { segment.origin.x + segment.diff.x * t, segment.origin.y + segment.diff.y * t, segment.origin.z + segment.diff.z * t };
 }
 
+Vector3 Reflect(const Vector3& input, const Vector3& normal)
+{
+	/*Vector3 a = input + (Project(input, normal) * -1);
+
+	Vector3 r = a + (Project(input, normal) * -1);*/
+
+	Vector3 r = input - 2 * Dot(input, normal) * normal;
+
+	return r;
+}
+
 //球と球の当たり判定
 bool IsCollisionSphere(const Sphere& s1, const Sphere& s2) {
 	//2つの球の中心点関の距離を求める

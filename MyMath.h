@@ -103,6 +103,7 @@ struct Pendulum {
 	float angularAcceleration;
 };
 
+//円錐振り子
 struct ConicalPendulum {
 	//アンカーポイント
 	Vector3 anchor;
@@ -114,6 +115,12 @@ struct ConicalPendulum {
 	float angle;
 	//角速度ω
 	float angularVelocity;
+};
+
+//カプセル
+struct Capsule {
+	Segment segment;
+	float radius;
 };
 
 //クロス積（ベクトル積）
@@ -217,7 +224,7 @@ Vector3 Project(const Vector3& v1, const Vector3& v2);
 
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment);
 
-
+Vector3 Reflect(const Vector3& input, const Vector3& normal);
 
 //球と球の当たり判定
 bool IsCollisionSphere(const Sphere& s1, const Sphere& s2);

@@ -11,21 +11,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
+	Plane plane{};
+	plane.normal = Normalize({ -0.2f,0.9f,-0.3f });
+	plane.distance = 0.0f;
+
 	Ball ball{};
-	ball.position = { 0.8f,0.0f,0.0f };
+	ball.position = { 0.8f,1.2f,0.3f };
 	ball.mass = 2.0f;
 	ball.radius = 0.05f;
 	ball.color = BLUE;
 
-	ConicalPendulum conicalPendullum{};
-	conicalPendullum.anchor = { 0.0f,1.0f,0.0f };
-	conicalPendullum.length = 0.8f;
-	conicalPendullum.halfApexAngle = 0.7f;
-	conicalPendullum.angle = 0.0f;
-	conicalPendullum.angularVelocity = 0.0f;
+	Segment segment{};
+	segment.origin = {};
+	segment.diff = {};
+
+	Capsule capsule{};
+	capsule.segment = segment;
+	capsule.radius = ball.radius;
 
 	bool start = false;
 	float deltaTime = 1.0f / 60.f;
+	//反発係数
+	float e = 0.8f;
 
 	
 	Vector3 rotate = {};
@@ -70,23 +77,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 		//ViewportMatrixを作る
 		Matrix4x4 viewPortMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
-		if (start) {
-			//円錐振り子の角速度を計算する
-			conicalPendullum.angularVelocity = std::sqrt(9.8f / (conicalPendullum.length * std::cos(conicalPendullum.halfApexAngle)));
-			conicalPendullum.angle += conicalPendullum.angularVelocity * deltaTime;
 
-			float radius = std::sin(conicalPendullum.halfApexAngle) * conicalPendullum.length;
-			float height = std::cos(conicalPendullum.halfApexAngle) * conicalPendullum.length;
-
-			ball.position.x = conicalPendullum.anchor.x + std::cos(conicalPendullum.angle) * radius;
-			ball.position.y = conicalPendullum.anchor.y - height;
-			ball.position.z = conicalPendullum.anchor.z - std::sin(conicalPendullum.angle) * radius;
-		}
 
 		//加速度も速度もどちらも秒を基準とした値である
 		//それが、1/60秒間(deltaTime)適用されたと考える
 		ball.velocity += ball.acceleration * deltaTime;
 		ball.position += ball.velocity * deltaTime;
+
+		if (start) {
+			ball.acceleration = { 0.0f,-9.8f,0.0f };
+			if (IsCollisionPlane(Sphere{ ball.position,ball.radius }, plane)) {
+				Vector3 reflected = Reflect(ball.velocity, plane.normal);
+				Vector3 projectToNormal = Project(reflected, plane.normal);
+				Vector3 movingDirection = reflected - projectToNormal;
+				ball.velocity = projectToNormal * e + movingDirection;
+			}
+		}
 
 	
 		ImGui::Begin("Window");
@@ -104,7 +110,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		DrawGrid(worldViewProjectionMatrix, viewPortMatrix);
-		DrawLine(conicalPendullum.anchor, ball.position, worldViewProjectionMatrix, viewPortMatrix,WHITE);
+		DrawPlane(plane, worldViewProjectionMatrix, viewPortMatrix, WHITE);
 		DrawSphere(ball, worldViewProjectionMatrix, viewPortMatrix,ball.color);
 
 
