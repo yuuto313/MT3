@@ -33,7 +33,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float deltaTime = 1.0f / 60.f;
 	//反発係数
 	float e = 0.8f;
-
+	//前フレームの位置を保持
+	Vector3 newPosition = ball.position;
 	
 	Vector3 rotate = {};
 	Vector3 translate = {};
@@ -83,15 +84,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//それが、1/60秒間(deltaTime)適用されたと考える
 		ball.velocity += ball.acceleration * deltaTime;
 		ball.position += ball.velocity * deltaTime;
+		newPosition = ball.position + ball.velocity * deltaTime;
+
+		capsule.segment.origin = ball.position;
+		capsule.segment.diff = newPosition - ball.position;
 
 		if (start) {
-			ball.acceleration = { 0.0f,-9.8f,0.0f };
-			if (IsCollisionPlane(Sphere{ ball.position,ball.radius }, plane)) {
+			ball.acceleration = { 0.0f,-100.8f,0.0f };
+			if (IsCollisionCapsuleAndPlane(capsule, plane)) {
 				Vector3 reflected = Reflect(ball.velocity, plane.normal);
 				Vector3 projectToNormal = Project(reflected, plane.normal);
 				Vector3 movingDirection = reflected - projectToNormal;
 				ball.velocity = projectToNormal * e + movingDirection;
+
+				//位置を修正する
+				float penetrationDepth = ball.radius - Dot(ball.position, plane.normal) - plane.distance;
+				ball.position += plane.normal * penetrationDepth;
 			}
+			newPosition = ball.position;
 		}
 
 	

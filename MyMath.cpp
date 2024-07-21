@@ -799,6 +799,33 @@ bool IsCollisionSphereAndOBB(const Sphere& sphere, const OBB& obb)
 	
 }
 
+bool IsCollisionCapsuleAndPlane(const Capsule& capsule, const Plane& plane)
+{
+	// カプセルの線分の始点と終点
+	Vector3 p1 = capsule.segment.origin;
+	Vector3 p2 = capsule.segment.origin + capsule.segment.diff;
+
+	// カプセルの両端の球
+	Sphere s1{ p1, capsule.radius };
+	Sphere s2{ p2, capsule.radius };
+
+	// 両端の球が平面と衝突しているか確認
+	if (IsCollisionPlane(s1, plane) || IsCollisionPlane(s2, plane)) {
+		return true;
+	}
+
+	// 線分が平面と交差しているか確認
+	float distance1 = Dot(p1, plane.normal) - plane.distance;
+	float distance2 = Dot(p2, plane.normal) - plane.distance;
+
+	// 片方の点が平面の上、もう片方の点が平面の下にある場合、線分が平面と交差している
+	if (distance1 * distance2 < 0) {
+		return true;
+	}
+
+	return false;
+}
+
 
 //二項演算子
 Vector3 operator+(const Vector3& v1, const Vector3& v2) { return Add(v1, v2); }
