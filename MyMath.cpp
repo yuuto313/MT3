@@ -691,3 +691,4 @@ bool IsCollisionSegmentAndAABB(const AABB& aabb, const Segment& segment)
 	}
 
 }
+

@@ -163,3 +163,11 @@ bool IsCollisionSphereAndAABB(const AABB& aabb, const Sphere& sphere);
 //AABBと線分の当たり判定
 bool IsCollisionSegmentAndAABB(const AABB& aabb, const Segment& segment);
 
+//二項演算子
+Vector3 operator+(const Vector3& v1, const Vector3& v2);
+Vector3 operator-(const Vector3& v1, const Vector3& v2);
+
+Vector3 operator+(float s, const Vector3& v);
+Vector3 operator*(float s, const Vector3& v);
+Vector3 operator*(const Vector3& v, float s);
+Vector3 operator/(const Vector3& v, float s);
